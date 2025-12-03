@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader.js";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
+import { SensorData } from "../types/sensorData";
 
 const MODEL_FOLDER = "FBX-Neck_Mech_Walker_by_3DHaupt";
 const MODEL_FILES = { mtl: "walker.mtl", obj: "walker.obj" };
@@ -20,6 +21,107 @@ const CAMERA_CONFIG = {
   initialPosition: { x: 5, y: 3, z: 5 },
   target: { x: 0, y: 1, z: 0 },
 };
+
+// 3D Label positions around the model
+const LABEL_POSITIONS = {
+  engine: new THREE.Vector3(-2.5, 2.5, 0),
+  temp: new THREE.Vector3(-2.5, 2.0, 0),
+  rpm: new THREE.Vector3(-2.5, 1.5, 0),
+  fuel: new THREE.Vector3(2.5, 2.5, 0),
+  battery: new THREE.Vector3(2.5, 2.0, 0),
+};
+
+// Create a text sprite for 3D labels
+function createTextSprite(
+  text: string,
+  color: string = "#00ff88",
+  bgColor: string = "rgba(0, 0, 0, 0.7)"
+): THREE.Sprite {
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d")!;
+  canvas.width = 256;
+  canvas.height = 64;
+
+  // Background
+  context.fillStyle = bgColor;
+  context.roundRect(0, 0, canvas.width, canvas.height, 8);
+  context.fill();
+
+  // Border
+  context.strokeStyle = color;
+  context.lineWidth = 2;
+  context.roundRect(2, 2, canvas.width - 4, canvas.height - 4, 6);
+  context.stroke();
+
+  // Text
+  context.fillStyle = color;
+  context.font = "bold 24px Consolas, Monaco, monospace";
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillText(text, canvas.width / 2, canvas.height / 2);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+
+  const material = new THREE.SpriteMaterial({
+    map: texture,
+    transparent: true,
+    depthTest: false,
+  });
+
+  const sprite = new THREE.Sprite(material);
+  sprite.scale.set(1.5, 0.4, 1);
+
+  return sprite;
+}
+
+// Update sprite text
+function updateTextSprite(sprite: THREE.Sprite, text: string, color: string = "#00ff88"): void {
+  const material = sprite.material as THREE.SpriteMaterial;
+  const texture = material.map as THREE.CanvasTexture;
+  const canvas = texture.image as HTMLCanvasElement;
+  const context = canvas.getContext("2d")!;
+
+  // Clear and redraw
+  context.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Background
+  context.fillStyle = "rgba(0, 0, 0, 0.75)";
+  context.roundRect(0, 0, canvas.width, canvas.height, 8);
+  context.fill();
+
+  // Border
+  context.strokeStyle = color;
+  context.lineWidth = 2;
+  context.roundRect(2, 2, canvas.width - 4, canvas.height - 4, 6);
+  context.stroke();
+
+  // Text
+  context.fillStyle = color;
+  context.font = "bold 24px Consolas, Monaco, monospace";
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillText(text, canvas.width / 2, canvas.height / 2);
+
+  texture.needsUpdate = true;
+}
+
+// Get color based on value thresholds
+function getValueColor(
+  value: number,
+  warningThreshold: number,
+  criticalThreshold: number,
+  inverse = false
+): string {
+  if (inverse) {
+    if (value <= criticalThreshold) return "#ff4444";
+    if (value <= warningThreshold) return "#ffaa00";
+    return "#00ff88";
+  }
+  if (value >= criticalThreshold) return "#ff4444";
+  if (value >= warningThreshold) return "#ffaa00";
+  return "#00ff88";
+}
 
 function loadTextFile(url: string): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -186,14 +288,25 @@ function loadModel(
 
 interface Viewer3DProps {
   onViewerReady: (resetFn: () => void) => void;
+  sensorData?: SensorData;
 }
 
-export const Viewer3D: React.FC<Viewer3DProps> = ({ onViewerReady }) => {
+// Interface for 3D sensor labels
+interface SensorLabels {
+  engine: THREE.Sprite;
+  temp: THREE.Sprite;
+  rpm: THREE.Sprite;
+  fuel: THREE.Sprite;
+  battery: THREE.Sprite;
+}
+
+export const Viewer3D: React.FC<Viewer3DProps> = ({ onViewerReady, sensorData }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const controlsRef = useRef<OrbitControls | null>(null);
+  const labelsRef = useRef<SensorLabels | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [loadingProgress, setLoadingProgress] = React.useState("Initializing...");
   const [error, setError] = React.useState<string | null>(null);
@@ -206,6 +319,64 @@ export const Viewer3D: React.FC<Viewer3DProps> = ({ onViewerReady }) => {
       controlsRef.current.update();
     }
   }, []);
+
+  // Create 3D sensor labels
+  const createSensorLabels = useCallback((scene: THREE.Scene): SensorLabels => {
+    const labels: SensorLabels = {
+      engine: createTextSprite("ENGINE: ---", "#00ff88"),
+      temp: createTextSprite("TEMP: ---", "#00ff88"),
+      rpm: createTextSprite("RPM: ---", "#00d4ff"),
+      fuel: createTextSprite("FUEL: ---", "#00ff88"),
+      battery: createTextSprite("BATTERY: ---", "#00d4ff"),
+    };
+
+    // Position labels around the model
+    labels.engine.position.copy(LABEL_POSITIONS.engine);
+    labels.temp.position.copy(LABEL_POSITIONS.temp);
+    labels.rpm.position.copy(LABEL_POSITIONS.rpm);
+    labels.fuel.position.copy(LABEL_POSITIONS.fuel);
+    labels.battery.position.copy(LABEL_POSITIONS.battery);
+
+    // Add to scene
+    Object.values(labels).forEach((label) => scene.add(label));
+
+    return labels;
+  }, []);
+
+  // Update sensor data effect
+  useEffect(() => {
+    if (!labelsRef.current || !sensorData) return;
+
+    const labels = labelsRef.current;
+
+    // Update engine status
+    const engineColor =
+      sensorData.engine.status === "OPERATIONAL"
+        ? "#00ff88"
+        : sensorData.engine.status === "WARNING"
+          ? "#ffaa00"
+          : "#ff4444";
+    updateTextSprite(labels.engine, `ENGINE: ${sensorData.engine.status}`, engineColor);
+
+    // Update temperature
+    const tempColor = getValueColor(sensorData.engine.temperature, 90, 100);
+    updateTextSprite(labels.temp, `TEMP: ${sensorData.engine.temperature.toFixed(1)}°C`, tempColor);
+
+    // Update RPM
+    updateTextSprite(labels.rpm, `RPM: ${Math.round(sensorData.engine.rpm)}`, "#00d4ff");
+
+    // Update fuel
+    const fuelColor = getValueColor(sensorData.fuel.level, 40, 20, true);
+    updateTextSprite(labels.fuel, `FUEL: ${sensorData.fuel.level.toFixed(0)}%`, fuelColor);
+
+    // Update battery
+    const batteryColor = getValueColor(sensorData.electrical.batteryVoltage, 12.0, 11.5, true);
+    updateTextSprite(
+      labels.battery,
+      `BATT: ${sensorData.electrical.batteryVoltage.toFixed(1)}V`,
+      batteryColor
+    );
+  }, [sensorData]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -258,6 +429,9 @@ export const Viewer3D: React.FC<Viewer3DProps> = ({ onViewerReady }) => {
     setupGround(scene);
     loadModel(scene, setLoadingProgress, setLoading, setError);
 
+    // Create 3D sensor labels
+    labelsRef.current = createSensorLabels(scene);
+
     const animate = () => {
       requestAnimationFrame(animate);
       controls.update();
@@ -280,7 +454,7 @@ export const Viewer3D: React.FC<Viewer3DProps> = ({ onViewerReady }) => {
       container.removeChild(renderer.domElement);
       renderer.dispose();
     };
-  }, [onViewerReady, resetView]);
+  }, [onViewerReady, resetView, createSensorLabels]);
 
   return (
     <section className="viewer-section">

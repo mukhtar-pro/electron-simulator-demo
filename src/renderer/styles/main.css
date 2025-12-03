@@ -216,6 +216,51 @@ body {
   }
 }
 
+/* Sensor Overlay on 3D View */
+.sensor-overlay {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.sensor-overlay-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  min-width: 140px;
+}
+
+.sensor-overlay-item .sensor-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 1px;
+  min-width: 55px;
+}
+
+.sensor-overlay-item .sensor-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: "Consolas", "Monaco", monospace;
+}
+
+.sensor-overlay-item .sensor-status {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
 /* Dashboard Panel */
 .dashboard-panel {
   width: var(--dashboard-width);

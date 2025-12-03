@@ -55,7 +55,7 @@ export const App: React.FC = () => {
     <div className="app-container">
       <Header onResetView={handleResetView} isOnline={isOnline} />
       <main className="main-content">
-        <Viewer3D onViewerReady={handleViewerReady} />
+        <Viewer3D onViewerReady={handleViewerReady} sensorData={sensorData} />
         <Dashboard data={sensorData} />
       </main>
     </div>
