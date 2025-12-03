@@ -52,9 +52,9 @@ export const App: React.FC = () => {
   }, []);
 
   return (
-    <div className="app-container">
+    <div className="flex flex-col h-screen">
       <Header onResetView={handleResetView} isOnline={isOnline} />
-      <main className="main-content">
+      <main className="flex flex-1 overflow-auto min-h-0">
         <Viewer3D onViewerReady={handleViewerReady} sensorData={sensorData} />
         <Dashboard data={sensorData} />
       </main>

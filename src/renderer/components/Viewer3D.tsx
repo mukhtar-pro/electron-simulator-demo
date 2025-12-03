@@ -457,21 +457,21 @@ export const Viewer3D: React.FC<Viewer3DProps> = ({ onViewerReady, sensorData })
   }, [onViewerReady, resetView, createSensorLabels]);
 
   return (
-    <section className="viewer-section">
-      <div ref={containerRef} className="viewer-container">
+    <section className="flex-1 flex flex-col relative">
+      <div ref={containerRef} className="flex-1 relative bg-bg-primary">
         {loading && (
-          <div className="loading-indicator">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-4 text-text-secondary text-sm z-[100]">
             <div className="spinner"></div>
             <span>{loadingProgress}</span>
           </div>
         )}
         {error && (
-          <div className="loading-indicator" style={{ color: "#ff6b6b" }}>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-4 text-status-danger text-sm z-[100]">
             <span>{error}</span>
           </div>
         )}
       </div>
-      <div className="viewer-controls-hint">
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-6 bg-black/70 px-5 py-2.5 rounded-lg text-xs text-text-secondary z-10">
         <span>Left Click + Drag: Rotate</span>
         <span>Scroll: Zoom</span>
         <span>Right Click + Drag: Pan</span>
