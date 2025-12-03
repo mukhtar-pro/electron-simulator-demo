@@ -10,7 +10,7 @@ export default tseslint.config(
     ignores: ["dist/", "node_modules/", "*.js", "*.mjs"],
   },
   {
-    files: ["src/**/*.ts"],
+    files: ["src/**/*.ts", "src/**/*.tsx"],
     languageOptions: {
       parserOptions: {
         project: "./tsconfig.json",

@@ -49,7 +49,7 @@ const preloadConfig = {
 const rendererConfig = {
   ...commonConfig,
   target: "electron-renderer",
-  entry: "./src/renderer/renderer.ts",
+  entry: "./src/renderer/index.tsx",
   output: {
     filename: "renderer.js",
     path: path.resolve(__dirname, "dist/renderer"),
