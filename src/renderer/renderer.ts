@@ -1,8 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
-import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader.js";
 import "./styles/main.css";
 
 // Sensor data interface
@@ -98,10 +96,7 @@ class EquipmentViewer {
 
     // Initialize renderer
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
-    this.renderer.setSize(
-      this.container.clientWidth,
-      this.container.clientHeight
-    );
+    this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -207,9 +202,7 @@ class EquipmentViewer {
         if (progress.total > 0) {
           const percent = (progress.loaded / progress.total) * 100;
           if (this.loadingElement) {
-            this.loadingElement.textContent = `Loading model... ${percent.toFixed(
-              0
-            )}%`;
+            this.loadingElement.textContent = `Loading model... ${percent.toFixed(0)}%`;
           }
         }
       },
@@ -320,11 +313,7 @@ class Dashboard {
       `${this.data.electrical.batteryVoltage}V`,
       this.getStatus(this.data.electrical.batteryVoltage, 11.5, 14.5)
     );
-    this.updateMetric(
-      "alternator-output",
-      `${this.data.electrical.alternatorOutput}V`,
-      "normal"
-    );
+    this.updateMetric("alternator-output", `${this.data.electrical.alternatorOutput}V`, "normal");
     this.updateMetric(
       "system-load",
       `${this.data.electrical.systemLoad}%`,
@@ -336,11 +325,7 @@ class Dashboard {
       `${this.data.fuel.level}%`,
       this.getStatus(this.data.fuel.level, 20, 100, true)
     );
-    this.updateMetric(
-      "fuel-consumption",
-      `${this.data.fuel.consumption} L/100km`,
-      "normal"
-    );
+    this.updateMetric("fuel-consumption", `${this.data.fuel.consumption} L/100km`, "normal");
     this.updateMetric("fuel-range", `${this.data.fuel.range} km`, "normal");
 
     this.updateMetric("gear", this.data.transmission.gear, "normal");
@@ -349,35 +334,17 @@ class Dashboard {
       `${this.data.transmission.fluidTemp}°C`,
       this.getStatus(this.data.transmission.fluidTemp, 40, 90)
     );
-    this.updateMetric(
-      "trans-pressure",
-      `${this.data.transmission.pressure} PSI`,
-      "normal"
-    );
+    this.updateMetric("trans-pressure", `${this.data.transmission.pressure} PSI`, "normal");
 
-    this.updateMetric(
-      "ambient-temp",
-      `${this.data.environment.ambientTemp}°C`,
-      "normal"
-    );
-    this.updateMetric(
-      "humidity",
-      `${this.data.environment.humidity}%`,
-      "normal"
-    );
-    this.updateMetric(
-      "altitude",
-      `${this.data.environment.altitude} m`,
-      "normal"
-    );
+    this.updateMetric("ambient-temp", `${this.data.environment.ambientTemp}°C`, "normal");
+    this.updateMetric("humidity", `${this.data.environment.humidity}%`, "normal");
+    this.updateMetric("altitude", `${this.data.environment.altitude} m`, "normal");
 
     this.updateStatusIndicator("engine-status", this.data.status.engineStatus);
     this.updateStatusIndicator("system-health", this.data.status.systemHealth);
     this.updateStatusIndicator(
       "alerts",
-      this.data.status.alerts === 0
-        ? "NONE"
-        : `${this.data.status.alerts} ACTIVE`
+      this.data.status.alerts === 0 ? "NONE" : `${this.data.status.alerts} ACTIVE`
     );
   }
 
@@ -399,9 +366,7 @@ class Dashboard {
       if (valueEl) {
         valueEl.textContent = value;
         const status =
-          value === "OPERATIONAL" || value === "GOOD" || value === "NONE"
-            ? "good"
-            : "warning";
+          value === "OPERATIONAL" || value === "GOOD" || value === "NONE" ? "good" : "warning";
         valueEl.className = `status-value ${status}`;
       }
     }
@@ -426,7 +391,8 @@ class Dashboard {
 // Initialize application when DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
   const viewer = new EquipmentViewer();
-  const dashboard = new Dashboard(sensorData);
+  // Initialize dashboard with sensor data
+  new Dashboard(sensorData);
 
   // Setup reset button
   const resetBtn = document.getElementById("reset-view-btn");
