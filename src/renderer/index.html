@@ -1,182 +1,180 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:;"
+    />
+    <title>Army Equipment Emulator</title>
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy"
-    content="default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline';">
-  <title>Army Equipment Emulator</title>
-</head>
-
-<body>
-  <div class="app-container">
-    <!-- Header -->
-    <header class="app-header">
-      <div class="header-title">
-        <span class="icon">⚙</span>
-        <h1>EQUIPMENT MONITORING SYSTEM</h1>
-      </div>
-      <div class="header-controls">
-        <button id="reset-view-btn" class="btn btn-secondary">
-          <span>↺</span> Reset View
-        </button>
-        <div class="status-badge operational">
-          <span class="pulse"></span>
-          SYSTEM ONLINE
+  <body>
+    <div class="app-container">
+      <!-- Header -->
+      <header class="app-header">
+        <div class="header-title">
+          <span class="icon">⚙</span>
+          <h1>EQUIPMENT MONITORING SYSTEM</h1>
         </div>
-      </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="main-content">
-      <!-- 3D Viewer -->
-      <section class="viewer-section">
-        <div id="viewer-container" class="viewer-container">
-          <div id="loading" class="loading-indicator">
-            <div class="spinner"></div>
-            <span>Loading 3D Model...</span>
+        <div class="header-controls">
+          <button id="reset-view-btn" class="btn btn-secondary"><span>↺</span> Reset View</button>
+          <div class="status-badge operational">
+            <span class="pulse"></span>
+            SYSTEM ONLINE
           </div>
         </div>
-        <div class="viewer-controls-hint">
-          <span>🖱 Left Click + Drag: Rotate</span>
-          <span>🖱 Scroll: Zoom</span>
-          <span>🖱 Right Click + Drag: Pan</span>
-        </div>
-      </section>
+      </header>
 
-      <!-- Dashboard Panel -->
-      <aside class="dashboard-panel">
-        <div class="dashboard-header">
-          <h2>SENSOR DASHBOARD</h2>
-          <span class="timestamp">LAST UPDATE: NOW</span>
-        </div>
-
-        <div class="dashboard-content">
-          <!-- Status Overview -->
-          <div class="metric-group status-group">
-            <h3 class="group-title">SYSTEM STATUS</h3>
-            <div class="status-grid">
-              <div class="status-item" id="engine-status">
-                <span class="status-label">Engine</span>
-                <span class="status-value good">OPERATIONAL</span>
-              </div>
-              <div class="status-item" id="system-health">
-                <span class="status-label">Health</span>
-                <span class="status-value good">GOOD</span>
-              </div>
-              <div class="status-item" id="alerts">
-                <span class="status-label">Alerts</span>
-                <span class="status-value good">NONE</span>
-              </div>
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- 3D Viewer -->
+        <section class="viewer-section">
+          <div id="viewer-container" class="viewer-container">
+            <div id="loading" class="loading-indicator">
+              <div class="spinner"></div>
+              <span>Loading 3D Model...</span>
             </div>
           </div>
+          <div class="viewer-controls-hint">
+            <span>🖱 Left Click + Drag: Rotate</span>
+            <span>🖱 Scroll: Zoom</span>
+            <span>🖱 Right Click + Drag: Pan</span>
+          </div>
+        </section>
 
-          <!-- Engine Metrics -->
-          <div class="metric-group">
-            <h3 class="group-title">🔧 ENGINE</h3>
-            <div class="metrics-grid">
-              <div class="metric-item" id="engine-temp">
-                <span class="metric-label">Temperature</span>
-                <span class="metric-value normal">87°C</span>
-              </div>
-              <div class="metric-item" id="engine-rpm">
-                <span class="metric-label">RPM</span>
-                <span class="metric-value normal">850</span>
-              </div>
-              <div class="metric-item" id="oil-pressure">
-                <span class="metric-label">Oil Pressure</span>
-                <span class="metric-value normal">45 PSI</span>
-              </div>
-              <div class="metric-item" id="coolant-level">
-                <span class="metric-label">Coolant Level</span>
-                <span class="metric-value normal">92%</span>
-              </div>
-            </div>
+        <!-- Dashboard Panel -->
+        <aside class="dashboard-panel">
+          <div class="dashboard-header">
+            <h2>SENSOR DASHBOARD</h2>
+            <span class="timestamp">LAST UPDATE: NOW</span>
           </div>
 
-          <!-- Electrical Metrics -->
-          <div class="metric-group">
-            <h3 class="group-title">⚡ ELECTRICAL</h3>
-            <div class="metrics-grid">
-              <div class="metric-item" id="battery-voltage">
-                <span class="metric-label">Battery</span>
-                <span class="metric-value normal">12.6V</span>
-              </div>
-              <div class="metric-item" id="alternator-output">
-                <span class="metric-label">Alternator</span>
-                <span class="metric-value normal">14.2V</span>
-              </div>
-              <div class="metric-item" id="system-load">
-                <span class="metric-label">System Load</span>
-                <span class="metric-value normal">34%</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Fuel Metrics -->
-          <div class="metric-group">
-            <h3 class="group-title">⛽ FUEL</h3>
-            <div class="metrics-grid">
-              <div class="metric-item" id="fuel-level">
-                <span class="metric-label">Level</span>
-                <span class="metric-value normal">78%</span>
-                <div class="progress-bar">
-                  <div class="progress-fill" style="width: 78%"></div>
+          <div class="dashboard-content">
+            <!-- Status Overview -->
+            <div class="metric-group status-group">
+              <h3 class="group-title">SYSTEM STATUS</h3>
+              <div class="status-grid">
+                <div class="status-item" id="engine-status">
+                  <span class="status-label">Engine</span>
+                  <span class="status-value good">OPERATIONAL</span>
+                </div>
+                <div class="status-item" id="system-health">
+                  <span class="status-label">Health</span>
+                  <span class="status-value good">GOOD</span>
+                </div>
+                <div class="status-item" id="alerts">
+                  <span class="status-label">Alerts</span>
+                  <span class="status-value good">NONE</span>
                 </div>
               </div>
-              <div class="metric-item" id="fuel-consumption">
-                <span class="metric-label">Consumption</span>
-                <span class="metric-value normal">8.5 L/100km</span>
+            </div>
+
+            <!-- Engine Metrics -->
+            <div class="metric-group">
+              <h3 class="group-title">🔧 ENGINE</h3>
+              <div class="metrics-grid">
+                <div class="metric-item" id="engine-temp">
+                  <span class="metric-label">Temperature</span>
+                  <span class="metric-value normal">87°C</span>
+                </div>
+                <div class="metric-item" id="engine-rpm">
+                  <span class="metric-label">RPM</span>
+                  <span class="metric-value normal">850</span>
+                </div>
+                <div class="metric-item" id="oil-pressure">
+                  <span class="metric-label">Oil Pressure</span>
+                  <span class="metric-value normal">45 PSI</span>
+                </div>
+                <div class="metric-item" id="coolant-level">
+                  <span class="metric-label">Coolant Level</span>
+                  <span class="metric-value normal">92%</span>
+                </div>
               </div>
-              <div class="metric-item" id="fuel-range">
-                <span class="metric-label">Range</span>
-                <span class="metric-value normal">420 km</span>
+            </div>
+
+            <!-- Electrical Metrics -->
+            <div class="metric-group">
+              <h3 class="group-title">⚡ ELECTRICAL</h3>
+              <div class="metrics-grid">
+                <div class="metric-item" id="battery-voltage">
+                  <span class="metric-label">Battery</span>
+                  <span class="metric-value normal">12.6V</span>
+                </div>
+                <div class="metric-item" id="alternator-output">
+                  <span class="metric-label">Alternator</span>
+                  <span class="metric-value normal">14.2V</span>
+                </div>
+                <div class="metric-item" id="system-load">
+                  <span class="metric-label">System Load</span>
+                  <span class="metric-value normal">34%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fuel Metrics -->
+            <div class="metric-group">
+              <h3 class="group-title">⛽ FUEL</h3>
+              <div class="metrics-grid">
+                <div class="metric-item" id="fuel-level">
+                  <span class="metric-label">Level</span>
+                  <span class="metric-value normal">78%</span>
+                  <div class="progress-bar">
+                    <div class="progress-fill" style="width: 78%"></div>
+                  </div>
+                </div>
+                <div class="metric-item" id="fuel-consumption">
+                  <span class="metric-label">Consumption</span>
+                  <span class="metric-value normal">8.5 L/100km</span>
+                </div>
+                <div class="metric-item" id="fuel-range">
+                  <span class="metric-label">Range</span>
+                  <span class="metric-value normal">420 km</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Transmission Metrics -->
+            <div class="metric-group">
+              <h3 class="group-title">⚙ TRANSMISSION</h3>
+              <div class="metrics-grid">
+                <div class="metric-item" id="gear">
+                  <span class="metric-label">Gear</span>
+                  <span class="metric-value normal gear-display">P</span>
+                </div>
+                <div class="metric-item" id="trans-temp">
+                  <span class="metric-label">Fluid Temp</span>
+                  <span class="metric-value normal">65°C</span>
+                </div>
+                <div class="metric-item" id="trans-pressure">
+                  <span class="metric-label">Pressure</span>
+                  <span class="metric-value normal">180 PSI</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Environment Metrics -->
+            <div class="metric-group">
+              <h3 class="group-title">🌡 ENVIRONMENT</h3>
+              <div class="metrics-grid">
+                <div class="metric-item" id="ambient-temp">
+                  <span class="metric-label">Ambient Temp</span>
+                  <span class="metric-value normal">22°C</span>
+                </div>
+                <div class="metric-item" id="humidity">
+                  <span class="metric-label">Humidity</span>
+                  <span class="metric-value normal">45%</span>
+                </div>
+                <div class="metric-item" id="altitude">
+                  <span class="metric-label">Altitude</span>
+                  <span class="metric-value normal">156 m</span>
+                </div>
               </div>
             </div>
           </div>
-
-          <!-- Transmission Metrics -->
-          <div class="metric-group">
-            <h3 class="group-title">⚙ TRANSMISSION</h3>
-            <div class="metrics-grid">
-              <div class="metric-item" id="gear">
-                <span class="metric-label">Gear</span>
-                <span class="metric-value normal gear-display">P</span>
-              </div>
-              <div class="metric-item" id="trans-temp">
-                <span class="metric-label">Fluid Temp</span>
-                <span class="metric-value normal">65°C</span>
-              </div>
-              <div class="metric-item" id="trans-pressure">
-                <span class="metric-label">Pressure</span>
-                <span class="metric-value normal">180 PSI</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Environment Metrics -->
-          <div class="metric-group">
-            <h3 class="group-title">🌡 ENVIRONMENT</h3>
-            <div class="metrics-grid">
-              <div class="metric-item" id="ambient-temp">
-                <span class="metric-label">Ambient Temp</span>
-                <span class="metric-value normal">22°C</span>
-              </div>
-              <div class="metric-item" id="humidity">
-                <span class="metric-label">Humidity</span>
-                <span class="metric-value normal">45%</span>
-              </div>
-              <div class="metric-item" id="altitude">
-                <span class="metric-label">Altitude</span>
-                <span class="metric-value normal">156 m</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </aside>
-    </main>
-  </div>
-</body>
-
+        </aside>
+      </main>
+    </div>
+  </body>
 </html>

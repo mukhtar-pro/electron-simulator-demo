@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
+import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader.js";
 import "./styles/main.css";
 
 // Sensor data interface
@@ -180,38 +181,100 @@ class EquipmentViewer {
   }
 
   private loadOBJModel(): void {
+    const mtlLoader = new MTLLoader();
     const objLoader = new OBJLoader();
-    const modelPath = "./assets/models/uploads_files_2792345_Koenigsegg.obj";
+    const modelBasePath = "./assets/models/FBX-Neck_Mech_Walker_by_3DHaupt/";
+    const mtlFile = "Neck_Mech_Walker_by_3DHaupt-(Wavefront OBJ).mtl";
+    const objFile = "Neck_Mech_Walker_by_3DHaupt-(Wavefront OBJ).obj";
 
+    // First load the MTL (material) file
+    mtlLoader.setPath(modelBasePath);
+    mtlLoader.load(
+      mtlFile,
+      (materials) => {
+        console.log("MTL loaded successfully");
+        materials.preload();
+
+        // Then load the OBJ file with materials
+        objLoader.setMaterials(materials);
+        objLoader.setPath(modelBasePath);
+        objLoader.load(
+          objFile,
+          (obj) => {
+            console.log("OBJ loaded successfully");
+
+            // Ensure materials render properly
+            obj.traverse((child) => {
+              if (child instanceof THREE.Mesh) {
+                if (child.material) {
+                  const mat = child.material as THREE.Material;
+                  mat.side = THREE.DoubleSide;
+                }
+                child.castShadow = true;
+                child.receiveShadow = true;
+              }
+            });
+
+            this.onModelLoaded(obj);
+          },
+          (progress) => {
+            if (progress.total > 0) {
+              const percent = (progress.loaded / progress.total) * 100;
+              if (this.loadingElement) {
+                this.loadingElement.textContent = `Loading model... ${percent.toFixed(0)}%`;
+              }
+            }
+          },
+          (error) => {
+            console.error("Failed to load OBJ model:", error);
+            if (this.loadingElement) {
+              this.loadingElement.textContent = "Failed to load 3D model";
+              this.loadingElement.style.color = "#ff6b6b";
+            }
+          }
+        );
+      },
+      (progress) => {
+        console.log("Loading MTL:", progress.loaded);
+      },
+      (error) => {
+        console.error("Failed to load MTL:", error);
+        // Fallback: load OBJ without materials
+        this.loadOBJWithoutMaterials();
+      }
+    );
+  }
+
+  private loadOBJWithoutMaterials(): void {
+    const objLoader = new OBJLoader();
+    const modelBasePath = "./assets/models/FBX-Neck_Mech_Walker_by_3DHaupt/";
+    const objFile = "Neck_Mech_Walker_by_3DHaupt-(Wavefront OBJ).obj";
+
+    objLoader.setPath(modelBasePath);
     objLoader.load(
-      modelPath,
+      objFile,
       (obj) => {
-        // Apply default material to OBJ
+        console.log("OBJ loaded without materials");
+
+        // Apply default material
         obj.traverse((child) => {
           if (child instanceof THREE.Mesh) {
             child.material = new THREE.MeshStandardMaterial({
               color: 0x888888,
               roughness: 0.5,
-              metalness: 0.7,
+              metalness: 0.5,
+              side: THREE.DoubleSide,
             });
+            child.castShadow = true;
+            child.receiveShadow = true;
           }
         });
+
         this.onModelLoaded(obj);
       },
-      (progress) => {
-        if (progress.total > 0) {
-          const percent = (progress.loaded / progress.total) * 100;
-          if (this.loadingElement) {
-            this.loadingElement.textContent = `Loading model... ${percent.toFixed(0)}%`;
-          }
-        }
-      },
+      undefined,
       (error) => {
-        console.error("Failed to load model:", error);
-        if (this.loadingElement) {
-          this.loadingElement.textContent = "Failed to load 3D model";
-          this.loadingElement.style.color = "#ff6b6b";
-        }
+        console.error("Failed to load OBJ:", error);
       }
     );
   }
@@ -247,10 +310,9 @@ class EquipmentViewer {
 
     this.scene.add(model);
 
-    // Update camera position - zoom * 2 (closer to model)
-    const distance = Math.max(size.x, size.y, size.z); // Halved distance = 2x zoom
-    this.camera.position.set(distance, distance * 0.5, distance);
-    this.controls.target.set(0, 0, 0); // Look at center (0, 0, 0)
+    // Update camera position - match resetView()
+    this.camera.position.set(5, 3, 5);
+    this.controls.target.set(0, 1, 0);
     this.controls.update();
 
     // Hide loading indicator
