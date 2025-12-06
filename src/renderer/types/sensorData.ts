@@ -1,5 +1,15 @@
 // Sensor data types
 
+// Vehicle control/driving data
+export interface VehicleData {
+  speed: number; // km/h
+  steeringAngle: number; // -45 to 45 degrees
+  throttle: number; // 0-100%
+  brakePressed: boolean;
+  handbrakeEngaged: boolean;
+  direction: "forward" | "reverse" | "stopped";
+}
+
 export interface EngineData {
   temperature: number;
   rpm: number;
@@ -39,6 +49,7 @@ export interface SystemStatus {
 }
 
 export interface SensorData {
+  vehicle: VehicleData;
   engine: EngineData;
   electrical: ElectricalData;
   fuel: FuelData;
@@ -50,9 +61,17 @@ export interface SensorData {
 
 // Default sensor data
 export const defaultSensorData: SensorData = {
+  vehicle: {
+    speed: 0,
+    steeringAngle: 0,
+    throttle: 0,
+    brakePressed: false,
+    handbrakeEngaged: true,
+    direction: "stopped",
+  },
   engine: {
-    temperature: 87,
-    rpm: 850,
+    temperature: 75,
+    rpm: 800,
     oilPressure: 45,
     coolantLevel: 92,
     status: "OPERATIONAL",
